@@ -56,14 +56,107 @@ in "CMake Language".
 
 ### organization
 
-### Syntax
+CMake language source files in a project are organized into:
+
+- directories
+- scripts
+- modules
+
+In the top level (project root directory), we can use the cmake command
+`add_subdirectory()` to add a subdirectory into the build. But there must
+be a corresponding `CMakeLists.txt` file in that folder to tell cmake how
+to deal with the content in this directory. Each subdirectory will get a
+folder with the same name (unless you specific a new name for it) under the 
+build root folder.
+
+An individual "XXX.cmake" can be processed in script mode. Assume you have a
+file name "hello.cmake" with the following content:
+
+```cmake
+message("hello world")
+```
+
+You can run this file with the following command:
+
+```shell
+cmake -P hello.cmake
+```
+
+In the script mode, you are not able to generate the build system, which means
+that you cannot really complete a build process (make any executable or library).
+People often use it to find some specific packages, download some necessary
+dependencies and check whether some required libraries exist or not.
+
+Modules means that any "XXX.cmake" can be loaded as a module and add into the source 
+file in both directories and scripts. The command to load is `include(file_path_and_name)`.
 
 ### Control flow
 
+Just like a normal programming language, cmake also has its own flow control keyword.
+
+```
+# condition
+if() / elseif() / else() / endif()
+
+# loop and break
+foreach() / endforeach()
+while() / endwhile()
+break()
+
+# record command for future reuse
+macro()/endmacro()
+function()/endfunction() 
+```
+
 ### Variables
+
+In cmake all the user-defined variables have to use the `set()` command to define.
+If you want to create a variable name "src_file" you can do the following:
+
+```
+set(src_file a.cpp)
+```
+
+In some other place, you may want to refer to this variable, you have to use the `$`.
+
+```
+# in this example, the output will be the same but
+# actually has a little bit different, will be 
+# explained later
+
+message("src_file -> " ${src_file})
+message("src_file -> " "${src_file}")
+```
 
 ### Lists
 
+When we use the command `set()` to define a variable, we actually define a "list". We
+can also use this command as follow:
+
+```
+set(file_list a.cpp b.cpp c.cpp)
+message("file_list -> " ${file_list})    # ref.1
+message("file_list -> " "${file_list}")  # ref.2
+```
+
+Obviously, this kind of situation always happens when you need to build an executable
+which dependent on a set of source files. First of all, we need to have all the
+files' name. In the above example, the variable `file_list` contains three elements we
+can think it a a list.
+
+In "ref.1", we refer to the variable using the name directly. It will like a `foreach`
+statement, while the "ref.2", refer the variable with quotation， it means treat it as
+a list. So the output will be a little bit different.
+
+```
+# output three file names right after the previous one
+file_list -> a.cppb.cppc.cpp
+
+# output as a list, separated by ";"
+file_list -> a.cpp;b.cpp;c.cpp
+```
+
 Want to know more, can visit the cmake offical documentation for [cmake language](https://cmake.org/cmake/help/v3.12/manual/cmake-language.7.html).
 
-## CMake build sytem
+## CMake build system
+
