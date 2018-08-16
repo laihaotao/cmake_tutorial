@@ -49,8 +49,8 @@ in the same folder with the source file, in this case, the `main.cpp`.
 # CMakeLists.txt
 # put this file in the same folder with the source code file
 
-project(a_simple_example)
 cmake_minimum_required(VERSION 3.4)
+project(a_simple_example)
 
 aux_source_directory(. SRC_FILES)
 add_executable(a_simple_example ${SRC_FILES})
