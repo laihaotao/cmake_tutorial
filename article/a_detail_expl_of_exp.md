@@ -33,7 +33,7 @@ go through them one by one.
   this command will build the executable with the name you set in the first 
   argument using the files whose name were stored in the second argument
 
-Link them together, in the first example. What we ask the build system to do
+Link them together, in the first example, what we ask the build system to do
 can be described as follow: 
 
 > we need to build a project with the name "a_simple_example". This build
@@ -41,7 +41,7 @@ can be described as follow:
 > directory found all source files and then use all these files to build an 
 > executable name "a_simple_example"
 
-## More detailed of the CMake Command
+## More detail of the CMake Command
 
 The following content will try to dig further into the three commands mentioned
 above, except the `cmake_minimum_required` since it is not really useful to the
