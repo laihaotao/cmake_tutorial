@@ -1,6 +1,6 @@
 # CMake Tutorial
 
-> Author: Haotao Lai (Eric)
+> Author: Haotao Lai (Eric) \
 > Website: http://laihaotao.me
 
 1. A simple example
