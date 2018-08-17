@@ -31,40 +31,54 @@ You should also remember that in cmake, there are something called scripts, one 
 main job is to detect whether a local machine contains the needed lib or not, if not try
 to download them, if contains, return the necessary paths of the lib.
 
+> Please note that, all the `find_*()` command listed below have a short hand version and a
+> full signature version. In this level, we only focus on the short hand version which is
+> enough for our use cases.
+
 ### find_package
 
+This is the **most important** command in this section, it is used to load settings for an
+external project which means that you need this command to use external libraries.
+
 ```
+# short hand version
 find_package(<package> [version] [EXACT] [QUIET] [MODULE]
              [REQUIRED] [[COMPONENTS] [components...]]
              [OPTIONAL_COMPONENTS components...]
              [NO_POLICY_SCOPE])
-
-find_package(<package> [version] [EXACT] [QUIET]
-             [REQUIRED] [[COMPONENTS] [components...]]
-             [CONFIG|NO_MODULE]
-             [NO_POLICY_SCOPE]
-             [NAMES name1 [name2 ...]]
-             [CONFIGS config1 [config2 ...]]
-             [HINTS path1 [path2 ... ]]
-             [PATHS path1 [path2 ... ]]
-             [PATH_SUFFIXES suffix1 [suffix2 ...]]
-             [NO_DEFAULT_PATH]
-             [NO_PACKAGE_ROOT_PATH]
-             [NO_CMAKE_PATH]
-             [NO_CMAKE_ENVIRONMENT_PATH]
-             [NO_SYSTEM_ENVIRONMENT_PATH]
-             [NO_CMAKE_PACKAGE_REGISTRY]
-             [NO_CMAKE_BUILDS_PATH] # Deprecated; does nothing.
-             [NO_CMAKE_SYSTEM_PATH]
-             [NO_CMAKE_SYSTEM_PACKAGE_REGISTRY]
-             [CMAKE_FIND_ROOT_PATH_BOTH |
-              ONLY_CMAKE_FIND_ROOT_PATH |
-              NO_CMAKE_FIND_ROOT_PATH])
-
 ```
 
+Let's go through the arguments list first:
+
+- `<package>`, obviously, is the name of the external library you would like to use;
+- `version` argument requests a version with which the package found should be compatible;
+- `EXACT` option requests that the version be matched exactly;
+- `QUIET` option disables messages if the package cannot be found;
+- `MODULE` option disables the full signature version (can ignore so far);
+- `REQUIRED` option stops processing with an error message if the package cannot be found;
+
+As mentioned above, there are two types of mode for this `find_package()` command. Known as
+`Module` mode and `Config` mode. Invoke the command using the short hand version will go with
+the "Module mode". Under this mode, CMake will search for a file called `Find<package>.cmake`
+in the `CMAKE_MODULE_PATH` comes with the CMake installation. Also user can add more path into
+this variable using the command below. It is extremely important to know how to write custom
+`Find<package>.cmake` file to instruct CMake to find the package you need.
+
+```
+# command to add path into CMAKE_MODULE_PATH
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/modules)
+```
+
+CMake originally provides you some popular used `Find<package>.cmake` files which locate in the
+path: `YOUR_CMAKE_INSTALLATION_PATH/Modules`. If you need to find a specific library which does
+not come with CMake you have to write your own. In our OpenISS framework, we have to write
+`FindOpenNI2.cmake`, `FindNiTE2.cmake`, etc.
+
+So far, we already know all the theoretical stuff, the next step will be try to write a custom
+`find<package>.cmake` module. An example will be given by using `OpenNi2` later within this post.
+
 Detailed documentation provided by `CMake` can be found 
-[here](https://cmake.org/cmake/help/latest/command/find_file.html).
+[here](https://cmake.org/cmake/help/latest/command/find_package.html).
 
 ### find_file
 
@@ -76,25 +90,6 @@ the same command is invoked, will perform the search again.
 ```
 # short hand version
 find_file (<VAR> name [path1 path2 ...])
-
-# full signature
-find_file (
-          <VAR>
-          name | NAMES name1 [name2 ...]
-          [HINTS path1 [path2 ... ENV var]]
-          [PATHS path1 [path2 ... ENV var]]
-          [PATH_SUFFIXES suffix1 [suffix2 ...]]
-          [DOC "cache documentation string"]
-          [NO_DEFAULT_PATH]
-          [NO_PACKAGE_ROOT_PATH]
-          [NO_CMAKE_PATH]
-          [NO_CMAKE_ENVIRONMENT_PATH]
-          [NO_SYSTEM_ENVIRONMENT_PATH]
-          [NO_CMAKE_SYSTEM_PATH]
-          [CMAKE_FIND_ROOT_PATH_BOTH |
-           ONLY_CMAKE_FIND_ROOT_PATH |
-           NO_CMAKE_FIND_ROOT_PATH]
-         )
 ```
 
 Detailed documentation provided by `CMake` can be found 
@@ -108,25 +103,6 @@ almost the same as the `find_file()` command.
 ```
 # short hand version
 find_path (<VAR> name [path1 path2 ...])
-
-# full signature
-find_path (
-        <VAR>
-          name | NAMES name1 [name2 ...]
-          [HINTS path1 [path2 ... ENV var]]
-          [PATHS path1 [path2 ... ENV var]]
-          [PATH_SUFFIXES suffix1 [suffix2 ...]]
-          [DOC "cache documentation string"]
-          [NO_DEFAULT_PATH]
-          [NO_PACKAGE_ROOT_PATH]
-          [NO_CMAKE_PATH]
-          [NO_CMAKE_ENVIRONMENT_PATH]
-          [NO_SYSTEM_ENVIRONMENT_PATH]
-          [NO_CMAKE_SYSTEM_PATH]
-          [CMAKE_FIND_ROOT_PATH_BOTH |
-           ONLY_CMAKE_FIND_ROOT_PATH |
-           NO_CMAKE_FIND_ROOT_PATH]
-         )
 ```
 
 Detailed documentation provided by `CMake` can be found 
@@ -139,25 +115,6 @@ This command is used to find a library. Library means it can be a static or dyna
 ```
 # short hand version
 find_library (<VAR> name [path1 path2 ...])
-
-# full signature
-find_library (
-          <VAR>
-          name | NAMES name1 [name2 ...] [NAMES_PER_DIR]
-          [HINTS path1 [path2 ... ENV var]]
-          [PATHS path1 [path2 ... ENV var]]
-          [PATH_SUFFIXES suffix1 [suffix2 ...]]
-          [DOC "cache documentation string"]
-          [NO_DEFAULT_PATH]
-          [NO_PACKAGE_ROOT_PATH]
-          [NO_CMAKE_PATH]
-          [NO_CMAKE_ENVIRONMENT_PATH]
-          [NO_SYSTEM_ENVIRONMENT_PATH]
-          [NO_CMAKE_SYSTEM_PATH]
-          [CMAKE_FIND_ROOT_PATH_BOTH |
-           ONLY_CMAKE_FIND_ROOT_PATH |
-           NO_CMAKE_FIND_ROOT_PATH]
-         )
 ```
 
 Detailed documentation provided by `CMake` can be found 
@@ -170,26 +127,94 @@ This command is used to find a program. Program means it is an executable file.
 ```
 # short hand version
 find_program (<VAR> name1 [path1 path2 ...])
-
-# full signature
-find_program (
-          <VAR>
-          name | NAMES name1 [name2 ...] [NAMES_PER_DIR]
-          [HINTS path1 [path2 ... ENV var]]
-          [PATHS path1 [path2 ... ENV var]]
-          [PATH_SUFFIXES suffix1 [suffix2 ...]]
-          [DOC "cache documentation string"]
-          [NO_DEFAULT_PATH]
-          [NO_PACKAGE_ROOT_PATH]
-          [NO_CMAKE_PATH]
-          [NO_CMAKE_ENVIRONMENT_PATH]
-          [NO_SYSTEM_ENVIRONMENT_PATH]
-          [NO_CMAKE_SYSTEM_PATH]
-          [CMAKE_FIND_ROOT_PATH_BOTH |
-           ONLY_CMAKE_FIND_ROOT_PATH |
-           NO_CMAKE_FIND_ROOT_PATH]
-         )
 ```
 
 Detailed documentation provided by `CMake` can be found 
 [here](https://cmake.org/cmake/help/latest/command/find_program.html).
+
+
+## A Custom `Find<package>.cmake` File Example
+
+Before we start the example, we need to know that we exactly we want to find
+when we need an external library (in the context of C++ development). 
+
+Obviously, the answer is:
+
+- all the header files
+- the lib (static or dynamic) file
+
+With the respect to the CMake convention, we will set the path contains this
+two types of file into two variable named `<package>_INCLUDE_DIRS` and
+`<package>_LIBRARIES`. Let's begin, we will try to write a `FindOpenNI2.cmake`.
+
+```
+# FindOpenNI2.cmake
+
+# This file is used to find OpenNi2 in your local machine
+# Usage: find_package(OpenNI2)
+# 
+# Variables defined by this module:
+#
+# OPENNI2_FOUND               True if OpenNI2 was found
+# OPENNI2_INCLUDE_DIRS        The location(s) of OpenNI2 headers
+# OPENNI2_LIBRARIES           Libraries needed to use OpenNI2
+
+find_path(OPENNI2_INCLUDE_DIR OpenNI.h
+          PATHS "$ENV{OPENNI2_INCLUDE${OPENNI2_SUFFIX}}"
+                "/usr/include/openni2" "/usr/include/ni2" "/usr/local/include/ni2"
+          PATH_SUFFIXES include/openni2
+        )
+
+find_library(OPENNI2_LIBRARY
+             NAMES OpenNI2      # No suffix needed on Win64
+                   libOpenNI2   # Linux
+             PATHS "$ENV{OPENNI2_LIB${OPENNI2_SUFFIX}}" "$ENV{OPENNI2_REDIST}"
+                   "/usr/lib/ni2" "/usr/local/lib/ni2"
+            )
+
+if(OPENNI2_INCLUDE_DIR AND OPENNI2_LIBRARY)
+  
+  set(OPENNI2_FOUND true)
+  
+  # Include directories
+  set(OPENNI2_INCLUDE_DIRS ${OPENNI2_INCLUDE_DIR})
+  include_directories(${OPENNI2_INCLUDE_DIRS})
+
+  # Libraries
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(OPENNI2_LIBRARIES ${OPENNI2_LIBRARY} ${LIBUSB_1_LIBRARIES})
+  else()
+    set(OPENNI2_LIBRARIES ${OPENNI2_LIBRARY})
+  endif()
+
+  set(OPENNI2_REDIST_DIR $ENV{OPENNI2_REDIST${OPENNI2_SUFFIX}})
+endif(OPENNI2_INCLUDE_DIR AND OPENNI2_LIBRARY)
+```
+
+With the above file, we can find OpenNi2 easily, if you have it installed properly. You
+only need one command to use it, the root "CMakeLists.txt" should look like:
+
+```
+cmake_minimum_required(VERSION 3.4)
+project(how_to_work_with_lib)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules")
+
+# invoke the FindOpenNI2 module
+find_package(OpenNI2)
+
+# visualize the result
+if (OPENNI2_FOUND)
+    message("OPENNI2 FOUND")
+else(OPENNI2_FOUND)
+    message("OPENNI2 NOT FOUND")
+endif(OPENNI2_FOUND)
+```
+
+`cd` into the build folder, run `cmake ..`, you should be able to see:
+
+```
+OPENNI2 FOUND
+-- Configuring done
+-- Generating done
+-- Build files have been written to: XXXXX/cmake_tutorial/code/how_to_work_with_lib/build
+```
