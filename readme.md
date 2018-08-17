@@ -1,4 +1,7 @@
-# Table of Content
+# CMake Tutorial
+
+> Author: Haotao Lai (Eric)
+> Website: http://laihaotao.me
 
 1. A simple example
 2. Introduction to CMake

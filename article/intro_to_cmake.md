@@ -160,3 +160,6 @@ Want to know more, can visit the cmake offical documentation for [cmake language
 
 ## CMake build system
 
+This part is advanced topic, please visit
+[here](https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html)
+to learn.
